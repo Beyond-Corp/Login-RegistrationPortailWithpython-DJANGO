@@ -2,9 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>signout</title>
 </head>
 <body>
-
+  {% csrf_token %} <!-- permet de proteger le formulaire contre les attaques csrf-->
+    <h3>signout</h3>
+    <form method="POST" action="{% url 'signoutP' %}">
+        <button type="submit">Sign Out</button>
+    </form>
+signout
 </body>
 </html>

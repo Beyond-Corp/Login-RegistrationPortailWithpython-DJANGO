@@ -1,0 +1,184 @@
+
+Votre vue signup pour créer un compte utilisateur avec Django semble correcte dans sa structure de base. Cependant, il y a quelques améliorations et vérifications que vous pouvez ajouter pour garantir une meilleure robustesse et sécurité. Voici une version améliorée :
+
+Vérifier que les mots de passe correspondent.
+Ajouter des validations pour les champs obligatoires.
+Gérer les exceptions au cas où la création de l'utilisateur échoue.
+Assurer que les champs sont bien récupérés.
+Voici la version améliorée de votre fonction signup :
+
+python
+Copier le code
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.shortcuts import render, redirect
+
+def signup(request):
+    if request.method == 'POST':
+        uname = request.POST.get('uname')
+        fname = request.POST.get('fname')
+        lname = request.POST.get('lname')
+        email = request.POST.get('email')
+        pass1 = request.POST.get('pass1')
+        pass2 = request.POST.get('pass2')
+
+        # Vérification des mots de passe
+        if pass1 != pass2:
+            messages.error(request, 'Les mots de passe ne correspondent pas.')
+            return redirect('signup')
+
+        # Vérification des champs obligatoires
+        if not uname or not fname or not lname or not email or not pass1 or not pass2:
+            messages.error(request, 'Tous les champs sont obligatoires.')
+            return redirect('signup')
+
+        # Vérifier si l'utilisateur existe déjà
+        if User.objects.filter(username=uname).exists():
+            messages.error(request, 'Le nom d\'utilisateur est déjà pris.')
+            return redirect('signup')
+
+        if User.objects.filter(email=email).exists():
+            messages.error(request, 'Un compte avec cet email existe déjà.')
+            return redirect('signup')
+
+        try:
+            # Création de l'utilisateur
+            myuser = User.objects.create_user(username=uname, email=email, password=pass1)
+            myuser.first_name = fname
+            myuser.last_name = lname
+            myuser.save()
+
+            messages.success(request, 'Votre compte a été créé avec succès.')
+            return redirect('signin')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la création du compte: {e}')
+            return redirect('signup')
+
+    return render(request, 'auth/signup.html')
+Explications :
+Vérification des mots de passe :
+
+python
+Copier le code
+if pass1 != pass2:
+    messages.error(request, 'Les mots de passe ne correspondent pas.')
+    return redirect('signup')
+Cette section assure que les mots de passe saisis par l'utilisateur correspondent.
+
+Vérification des champs obligatoires :
+
+python
+Copier le code
+if not uname or not fname or not lname or not email or not pass1 or not pass2:
+    messages.error(request, 'Tous les champs sont obligatoires.')
+    return redirect('signup')
+Assurez-vous que tous les champs sont remplis avant de tenter de créer l'utilisateur.
+
+Vérification des doublons :
+
+python
+Copier le code
+if User.objects.filter(username=uname).exists():
+    messages.error(request, 'Le nom d\'utilisateur est déjà pris.')
+    return redirect('signup')
+
+if User.objects.filter(email=email).exists():
+    messages.error(request, 'Un compte avec cet email existe déjà.')
+    return redirect('signup')
+Vérifiez si le nom d'utilisateur ou l'email sont déjà utilisés dans la base de données.
+
+Gestion des exceptions :
+
+python
+Copier le code
+try:
+    # Création de l'utilisateur
+    myuser = User.objects.create_user(username=uname, email=email, password=pass1)
+    myuser.first_name = fname
+    myuser.last_name = lname
+    myuser.save()
+
+    messages.success(request, 'Votre compte a été créé avec succès.')
+    return redirect('signin')
+except Exception as e:
+    messages.error(request, f'Erreur lors de la création du compte: {e}')
+    return redirect('signup')
+Entoure le code de création de l'utilisateur d'un bloc try-except pour attraper les éventuelles erreurs et les afficher à l'utilisateur.
+
+En suivant ces améliorations, votre fonction signup sera plus robuste et offrira une meilleure expérience utilisateur.
+
+
+
+
+
+
+
+
+
+
+
+
+def signin(request):
+
+    if request.method == 'POST':
+        uname = request.POST.get('uname')
+        pass1 = request.POST.get('pass1')
+
+        user = User.objects.get(username=uname)
+        if user.check_password(pass1):
+            messages.success(request, 'You have successfully logged in')
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'Invalid Credentials')
+            return redirect('signinP')
+    else:
+        messages.error(request, 'Invalid Credentials')
+        return redirect('signinP')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def signin(request):
+
+    if request.method == 'POST':
+        uname = request.POST.get('uname')
+        pass1 = request.POST.get('pass1')
+        
+        user = User.objects.get(username=uname) // ici on recupere l'utilisateur qui a le meme username que celui entré
+        if user.check_password(pass1): // ici on verifie si le mot de passe entré est le meme que celui de l'utilisateur
+            messages.success(request, 'You have successfully logged in')// si c'est le cas on affiche un message de succes
+            return redirect('dashboard')// et on redirige l'utilisateur vers le dashboard
+        else:
+            messages.error(request, 'Invalid Credentials')      // sinon on affiche un message d'erreur
+            return redirect('signinP')  //  et on redirige l'utilisateur vers la page de connexion
+    else:
+        messages.error(request, 'Invalid Credentials')// si l'utilisateur n'a pas entré de mot de passe ou de username on affiche un message d'erreur
+        return redirect('signinP')// et on redirige l'utilisateur vers la page de connexion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

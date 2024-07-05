@@ -1,0 +1,42 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Authentification</title>
+</head>
+<body>
+    {% for message in messages %}
+        <p>{{ message }}</p>
+    {% endfor %}
+
+    <h3>Welcome to B</h3>
+
+    {% if user.is_authenticated %}
+        <!-- Si l'utilisateur est connecté -->
+        <p>Hello, {{ user.fname }}!</p>   <!-- fname is the first name of the user  mais ne s'affiche pas -->
+        <form method="post" action="{% url 'signoutP' %}">
+            <button type="submit">Sign Out</button>
+        </form>
+    {% else %}
+        <!-- Si l'utilisateur n'est pas connecté -->
+        <p>Hello, Guest!</p>
+        <button><a href="{% url 'signupP' %}">Sign Up</a></button>
+        <button><a href="{% url 'signinP' %}">Sign In</a></button>
+    {% endif %}
+</body>
+</html>
+
+
+
+
+
+<!--{% if user %}-->
+<!--    &lt;!&ndash; Si l'utilisateur est connecté &ndash;&gt;-->
+<!--    <p>Bonjour, {{ fname }} !</p>-->
+<!--{% else %}-->
+<!--    &lt;!&ndash; Si l'utilisateur n'est pas connecté (invité) &ndash;&gt;-->
+<!--    <p>Bonjour, Invité !</p>-->
+<!--{% endif %}-->
+
